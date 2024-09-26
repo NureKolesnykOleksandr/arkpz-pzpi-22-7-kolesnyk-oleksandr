@@ -1,1 +1,1 @@
-# arkpz-pzpi-22-7-kolesnyk-oleksandr
+Колесник Олександр ПЗПІ-22-7 
