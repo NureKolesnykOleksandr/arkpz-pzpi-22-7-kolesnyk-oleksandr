@@ -12,9 +12,15 @@ namespace ServerMM
         public DbSet<Recommendation> Recommendations { get; set; }
         public DbSet<UserLogin> UserLogins { get; set; }
 
+        // Конструктор, принимающий DbContextOptions
+        public SqliteDBContext(DbContextOptions<SqliteDBContext> options)
+            : base(options)
+        { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=MedMon.db");
+            // Этот метод можно оставить пустым или использовать для дополнительной конфигурации
+            // optionsBuilder.UseSqlite("Data Source=MedMon.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
