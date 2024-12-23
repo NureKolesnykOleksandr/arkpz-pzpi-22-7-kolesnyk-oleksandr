@@ -8,10 +8,8 @@ namespace ServerMM.Models
         [Key]
         public int LoginID { get; set; }
 
-        [Required]
         public int UserID { get; set; }
 
-        [ForeignKey("UserID")]
         public User User { get; set; }
 
         public DateTime LoginTime { get; set; } = DateTime.Now;

@@ -8,19 +8,14 @@ namespace ServerMM.Models
         [Key]
         public int DataID { get; set; }
 
-        [Required]
         public int DeviceID { get; set; }
 
-        [ForeignKey("DeviceID")]
         public Device Device { get; set; }
 
-        [Required]
         public int UserID { get; set; }
 
-        [ForeignKey("UserID")]
         public User User { get; set; }
 
-        [Required]
         public DateTime Timestamp { get; set; }
 
         public int? HeartRate { get; set; }

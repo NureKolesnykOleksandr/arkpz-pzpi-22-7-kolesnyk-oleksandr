@@ -41,14 +41,9 @@ namespace ServerMM.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserID1")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("AlertID");
 
                     b.HasIndex("UserID");
-
-                    b.HasIndex("UserID1");
 
                     b.ToTable("Alerts");
                 });
@@ -80,17 +75,12 @@ namespace ServerMM.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserID1")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("DeviceID");
 
                     b.HasIndex("SerialNumber")
                         .IsUnique();
 
                     b.HasIndex("UserID");
-
-                    b.HasIndex("UserID1");
 
                     b.ToTable("Devices");
                 });
@@ -111,14 +101,9 @@ namespace ServerMM.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserID1")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("RecommendationID");
 
                     b.HasIndex("UserID");
-
-                    b.HasIndex("UserID1");
 
                     b.ToTable("Recommendations");
                 });
@@ -143,9 +128,6 @@ namespace ServerMM.Migrations
                     b.Property<int>("DeviceID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("DeviceID1")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int?>("HeartRate")
                         .HasColumnType("INTEGER");
 
@@ -160,18 +142,11 @@ namespace ServerMM.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserID1")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("DataID");
 
                     b.HasIndex("DeviceID");
 
-                    b.HasIndex("DeviceID1");
-
                     b.HasIndex("UserID");
-
-                    b.HasIndex("UserID1");
 
                     b.ToTable("SensorData");
                 });
@@ -236,29 +211,18 @@ namespace ServerMM.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserID1")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("LoginID");
 
                     b.HasIndex("UserID");
-
-                    b.HasIndex("UserID1");
 
                     b.ToTable("UserLogins");
                 });
 
             modelBuilder.Entity("ServerMM.Models.Alert", b =>
                 {
-                    b.HasOne("ServerMM.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ServerMM.Models.User", "User")
                         .WithMany("Alerts")
-                        .HasForeignKey("UserID1")
+                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -267,15 +231,9 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.Device", b =>
                 {
-                    b.HasOne("ServerMM.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ServerMM.Models.User", "User")
                         .WithMany("Devices")
-                        .HasForeignKey("UserID1")
+                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -284,15 +242,9 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.Recommendation", b =>
                 {
-                    b.HasOne("ServerMM.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ServerMM.Models.User", "User")
                         .WithMany("Recommendations")
-                        .HasForeignKey("UserID1")
+                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -301,27 +253,15 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.SensorData", b =>
                 {
-                    b.HasOne("ServerMM.Models.Device", null)
-                        .WithMany()
-                        .HasForeignKey("DeviceID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ServerMM.Models.Device", "Device")
                         .WithMany("SensorData")
-                        .HasForeignKey("DeviceID1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ServerMM.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("DeviceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ServerMM.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserID1")
+                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -332,15 +272,9 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.UserLogin", b =>
                 {
-                    b.HasOne("ServerMM.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ServerMM.Models.User", "User")
                         .WithMany("UserLogins")
-                        .HasForeignKey("UserID1")
+                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

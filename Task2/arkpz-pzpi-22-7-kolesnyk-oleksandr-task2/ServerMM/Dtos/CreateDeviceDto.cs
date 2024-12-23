@@ -14,7 +14,7 @@ namespace ServerMM.Dtos
         public string SerialNumber { get; init; }
 
         [Required]
-        public int UserID { get; init; } // To associate the device with the user
+        public int UserID { get; init; }
 
     }
 }

@@ -7,24 +7,19 @@ namespace ServerMM.Models
         [Key]
         public int UserID { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string FirstName { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
 
-        [Required]
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
         public string PasswordHash { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
 
-        [Required]
         [MaxLength(10)]
         public string Gender { get; set; }
 
