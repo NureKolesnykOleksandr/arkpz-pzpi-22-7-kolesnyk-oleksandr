@@ -1,3 +1,5 @@
 *.db-shm
 *.db-wal
 .vs
+obj
+bin
