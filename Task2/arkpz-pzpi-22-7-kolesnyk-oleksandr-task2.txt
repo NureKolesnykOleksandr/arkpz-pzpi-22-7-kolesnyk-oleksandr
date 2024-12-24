@@ -1,1 +1,388 @@
+МIНIСТЕРСТВО ОСВIТИ І НАУКИ УКРАЇНИ
+
+ХАРКIВСЬКИЙ НАЦІОНАЛЬНИЙ
+УНIВЕРСИТЕТ РАДIОЕЛЕКТРОНIКИ
+
+
+
+Кафедра «Програмна інженерія»
+
+
+
+
+ЗВІТ
+до лабораторної роботи №2 з дисципліни 
+«Аналіз та рефакторинг коду» 
+На тему: «РОЗРОБКА БАЗИ ДАНИХ ДЛЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ ТА ПРИКЛАДНОГО ПРОГРАМНОГО ІНТЕРФЕЙСУ (API).»
+
+
+Виконав: 						Прийняв:
+ст. гр. ПЗПІ-22-7                       		ст. викладач кафедри ПІ
+Колесник Олександр Андрійович		Сокорчук Ігор Петрович
+
+
+
+
+Харкiв 2024
+
+1 МЕТА 
+Розробити базу даних для серверної частини програмної системи та прикладного програмного інтерфейсу
+
+ 2 ЗАВДАННЯ 
+- Розробити будову програмної системи. 
+- Створити UML діаграму прецедентів для серверної частини системи. 
+- Створити ER діаграму даних. 
+- Розробити базу даних (БД) програмної системи. 
+- Створити діаграму структури БД. 
+- Розробити функції роботи з БД (ORM або CoRM тощо). 
+- Розробити API (REST або GraphQL, gRPC тощо) для взаємодії серверної частини з клієнтами. - Створити специфікацію розробленого API. 
+- Створити програмну реалізацію розробленого API та функцій роботи з БД.
+- Перевірити роботу створеного програмного коду серверної частини системи.
+
+3 ХІД РОБОТИ
+Для виконання цієї лабораторної роботи були використані такі технології, як ASP .Net Core, SqlLite та Entity Framework. У проекті були создані наступні каталоги:
+-Controllers – для обробки HTTP запитів в схемі Rest API;
+-Dtos – об’єкти для передачі даних;
+-Interfaces – інтерфейси для роботи з репозиторіями;
+- Models – моделі для зберігання даних;
+- Repositories – для взаємодії з базою даних.
+Спочатку була створена ER-діаграма бази даних системи, яку можна побачити на рисунку 1:
+ 
+Рисунок 1 – ER-діаграма бази даних
+	Потім була розроблена діаграма прецедентів для серверної частини системи. 
+ 	
+Рисунок 2 – Діаграма прецедентів для 
+	Взаємодія з базою даних відбувається через коллекції об’єктів Entity Framework(див. Дод. А). 
+	У ході роботи була розроблена схема REST API для взаємодії серверної частини з клієнтами. Специфікацію даного API можна подивитись у Додатку Б.
+Посилання на запис в youtube:
+https://youtu.be/aXRTDp7n5mg
+
+ВИСНОВКИ
+Під час виконання лабораторної роботи було описано проєкт у форматі Vision & Scope (Додаток А) 
+
+	 
+ДОДАТОК А 
+SQLite DB Context
+using Microsoft.AspNetCore.Mvc;
+using ServerMM.Dtos;
+using ServerMM.Interfaces;
+
+namespace ServerMM.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
+    {
+        private readonly IUserRepository _userRepository;
+
+        public AuthController(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        {
+            var result = await _userRepository.Register(dto);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            var result = await _userRepository.Login(dto, ipAddress);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var result = await _userRepository.ForgotPassword(dto);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+    }
+}
+ 
+ДОДАТОК Б 
+Специфікація розробленого API
+{
+  "/api/alert": {
+    "post": {
+      "tags": ["Alert"],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "AlertType": { "type": "string" },
+                "AlertMessage": { "type": "string" },
+                "UserId": { "type": "integer" }
+              },
+              "required": ["AlertType", "AlertMessage", "UserId"]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Повідомлення відправлено успішно"
+        },
+        "400": {
+          "description": "Validation errors"
+        }
+      }
+    }
+  },
+  "/api/auth/register": {
+    "post": {
+      "tags": ["Auth"],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "FirstName": { "type": "string" },
+                "LastName": { "type": "string" },
+                "Email": { "type": "string", "format": "email" },
+                "EmergencyEmail": { "type": "string", "format": "email" },
+                "Password": { "type": "string", "minLength": 6 },
+                "DateOfBirth": { "type": "string", "format": "date" },
+                "Gender": { "type": "string", "enum": ["Male", "Female", "Other"] }
+              },
+              "required": ["FirstName", "LastName", "Email", "EmergencyEmail", "Password", "DateOfBirth", "Gender"]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "User registered successfully"
+        },
+        "400": {
+          "description": "Validation errors"
+        }
+      }
+    }
+  },
+  "/api/auth/login": {
+    "post": {
+      "tags": ["Auth"],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {}
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Login successful"
+        },
+        "400": {
+          "description": "Invalid credentials"
+        }
+      }
+    }
+  },
+  "/api/device": {
+    "post": {
+      "tags": ["Device"],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {}
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Датчик додано успішно"
+        },
+        "400": {
+          "description": "Validation errors"
+        }
+      }
+    }
+  },
+  "/api/device/SensorData/{deviceId}": {
+    "post": {
+      "tags": ["Device"],
+      "parameters": [
+        {
+          "name": "deviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {}
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Датчик успішно оновлено"
+        },
+        "400": {
+          "description": "Validation errors"
+        }
+      }
+    }
+  },
+  "/api/device/{userId}": {
+    "get": {
+      "tags": ["Device"],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "List of devices",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/device/{deviceId}/history": {
+    "get": {
+      "tags": ["Device"],
+      "parameters": [
+        {
+          "name": "deviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Device history data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": ["Device"],
+      "parameters": [
+        {
+          "name": "deviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Історію датчика успішно зітрано"
+        },
+        "400": {
+          "description": "Failed to delete history"
+        }
+      }
+    }
+  },
+  "/api/recommendation/user/{userId}": {
+    "get": {
+      "tags": ["Recommendation"],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "List of user recommendations"
+        },
+        "400": {
+          "description": "Не були знайдені рекомендації для цього User"
+        },
+        "500": {
+          "description": "Internal server error"
+        }
+      }
+    }
+  },
+  "/api/recommendation/{userId}/generate": {
+    "get": {
+      "tags": ["Recommendation"],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Generated recommendation"
+        },
+        "400": {
+          "description": "Failed to generate recommendation"
+        },
+        "500": {
+          "description": "Internal server error"
+        }
+      }
+    }
+  }
+}
 
