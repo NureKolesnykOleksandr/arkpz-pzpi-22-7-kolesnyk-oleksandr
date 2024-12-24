@@ -2,10 +2,11 @@
 
 namespace ServerMM.Models
 {
+
     public class User
     {
         [Key]
-        public int UserID { get; set; }
+        public int UserId { get; set; }
 
         [MaxLength(50)]
         public string FirstName { get; set; }
@@ -16,6 +17,9 @@ namespace ServerMM.Models
         [EmailAddress]
         public string Email { get; set; }
 
+        [EmailAddress]
+        public string EmergencyEmail { get; set; }
+
         public string PasswordHash { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
@@ -23,11 +27,8 @@ namespace ServerMM.Models
         [MaxLength(10)]
         public string Gender { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public UserOptions userOptions { get; set; }
 
-        public ICollection<Device> Devices { get; set; }
-        public ICollection<Alert> Alerts { get; set; }
-        public ICollection<Recommendation> Recommendations { get; set; }
-        public ICollection<UserLogin> UserLogins { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

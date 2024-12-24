@@ -14,7 +14,6 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IRecomendationRepository, RecomendationRepository>();
-builder.Services.AddScoped<ISensorDataRepository, SensorDataRepository>();
 
 // Добавление контроллеров и других сервисов
 builder.Services.AddControllers();

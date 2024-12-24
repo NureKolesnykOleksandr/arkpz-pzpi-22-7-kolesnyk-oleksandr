@@ -12,11 +12,11 @@ namespace ServerMM.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly SqliteDBContext _dbContext;
+        private readonly SqliteDBContext context;
 
-        public UserRepository(SqliteDBContext dbContext)
+        public UserRepository(SqliteDBContext context)
         {
-            _dbContext = dbContext;
+            this.context = context;
         }
 
         private async Task<bool> SendEmailAsync(string recipientEmail, string subject, string body)
@@ -31,7 +31,7 @@ namespace ServerMM.Repositories
                 m.Body = body;
                 SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587)
                 {
-                    Credentials = new NetworkCredential("oleksandr.kolesnyk@nure.ua", "qwert2004"),
+                    Credentials = new NetworkCredential("oleksandr.kolesnyk@nure.ua", "12345678"),
                     EnableSsl = true
                 };
                 smtp.Send(m);
@@ -56,7 +56,7 @@ namespace ServerMM.Repositories
 
         public async Task<IdentityResult> Register(RegisterDto registerDto)
         {
-            if(registerDto.Gender!="Male" || registerDto.Gender != "Female")
+            if(registerDto.Gender!="Male" && registerDto.Gender != "Female")
             {
                 return IdentityResult.Failed(new IdentityError
                 {
@@ -65,7 +65,7 @@ namespace ServerMM.Repositories
             }
 
             string hashedPassword = HashPassword(registerDto.Password);
-            
+
 
 
             User user = new User
@@ -75,12 +75,27 @@ namespace ServerMM.Repositories
                 LastName = registerDto.LastName,
                 DateOfBirth = registerDto.DateOfBirth,
                 Gender = registerDto.Gender,
-                PasswordHash = hashedPassword
+                PasswordHash = hashedPassword,
+                EmergencyEmail = registerDto.EmergencyEmail
             };
 
-            await _dbContext.Users.AddAsync(user);
+            await context.Users.AddAsync(user);
 
-            int changes = await _dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
+
+            Models.UserOptions userOptions = new Models.UserOptions
+            {
+                UserId = user.UserId,
+                MinPulse = 60,
+                MaxPulse = 100,
+                MinOxygenLevel = 95,
+                MinBodyTemperature = 36.5,
+                MaxBodyTemperature = 37.5
+            };
+
+            // Добавляем настройки пользователя
+            await context.UserOptions.AddAsync(userOptions);
+            int changes = await context.SaveChangesAsync();
 
             if (changes > 0)
             {
@@ -96,9 +111,9 @@ namespace ServerMM.Repositories
 
         }
 
-        public async Task<IdentityResult> Login(LoginDto loginDto)
+        public async Task<IdentityResult> Login(LoginDto loginDto, string ip)
         {
-            User user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+            User user = await context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
             if (user == null)
             {
@@ -107,6 +122,9 @@ namespace ServerMM.Repositories
 
             if (CheckPassword(loginDto.Password, user.PasswordHash))
             {
+                UserLogin login = new UserLogin() { UserId = user.UserId,IPAddress = ip};
+                await context.UserLogins.AddAsync(login);
+                await context.SaveChangesAsync();
                 return IdentityResult.Success;
             }
 
@@ -115,7 +133,7 @@ namespace ServerMM.Repositories
 
         public async Task<IdentityResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
-            User user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == forgotPasswordDto.Email);
+            User user = await context.Users.FirstOrDefaultAsync(u => u.Email == forgotPasswordDto.Email);
 
             if(user.FirstName!=forgotPasswordDto.FirstName || user.DateOfBirth != forgotPasswordDto.DateOfBirth)
             {
@@ -135,8 +153,8 @@ namespace ServerMM.Repositories
             string hashedNewPassword = HashPassword(newPassword);
 
             user.PasswordHash = hashedNewPassword;
-            _dbContext.Users.Update(user);
-            await _dbContext.SaveChangesAsync();
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
 
             if (await SendEmailAsync(forgotPasswordDto.Email,
                 "Скидання пароля","Ваш новий пароль на MedMon: "+ newPassword))
@@ -146,5 +164,99 @@ namespace ServerMM.Repositories
 
             return IdentityResult.Failed(new IdentityError { Description = "Шось пішло не по плану" });
         }
+
+
+
+        public async Task<List<User>> GetUsers()
+        {
+            var users = await context.Users.ToListAsync();
+
+            foreach (var item in users)
+            {
+                item.userOptions = await context.UserOptions.FirstOrDefaultAsync(u => u.UserId == item.UserId);
+            }
+
+            return users;
+        }
+
+        public async Task<IdentityResult> UpdateProfile(int userId, UpdateProfileDto updateProfileDto)
+        {
+            if (updateProfileDto.Gender != "Male" && updateProfileDto.Gender != "Female")
+            {
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Description = "Оберіть справжній гендер. Так я вважаю шо є тільки 2 гендера. Закенселіть мене, якщо захочете"
+                });
+            }
+
+            var user = await context.Users.FindAsync(userId);
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError() { Description = "Профіль не був знайдений" });
+
+            user.FirstName = updateProfileDto.FirstName;
+            user.LastName = updateProfileDto.LastName;
+            user.DateOfBirth = updateProfileDto.DateOfBirth;
+            user.Gender = updateProfileDto.Gender;
+
+            context.Update(user);
+            await context.SaveChangesAsync();
+
+            return IdentityResult.Success;
+        }
+
+        public async Task<IdentityResult> UpdateUserOptions(int userId, UpdateUserOptionsDto updateUserOptionsDto)
+        {
+            var user = await context.Users.FindAsync(userId);
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError() { Description = "Профіль не був знайдений" });
+
+            var userOptions = await context.UserOptions.FindAsync(userId);
+            if (userOptions == null)
+                return IdentityResult.Failed(new IdentityError() { Description = "Налаштування для користувача не знайдені" });
+
+            var validationResult = ValidateUserOptions(updateUserOptionsDto);
+            if (!validationResult.Succeeded)
+                return validationResult;
+
+            userOptions.MinPulse = updateUserOptionsDto.MinPulse;
+            userOptions.MaxPulse = updateUserOptionsDto.MaxPulse;
+            userOptions.MinOxygenLevel = updateUserOptionsDto.MinOxygenLevel;
+            userOptions.MinBodyTemperature = updateUserOptionsDto.MinBodyTemperature;
+            userOptions.MaxBodyTemperature = updateUserOptionsDto.MaxBodyTemperature;
+
+            context.Update(userOptions);
+            await context.SaveChangesAsync();
+
+            return IdentityResult.Success;
+        }
+
+        private IdentityResult ValidateUserOptions(UpdateUserOptionsDto dto)
+        {
+            var errors = new List<IdentityError>();
+
+            if (dto.MinPulse < 30 || dto.MaxPulse > 200 || dto.MinPulse >= dto.MaxPulse)
+                errors.Add(new IdentityError
+                {
+                    Description = "Пульс має бути у межах від  30 до 200 ударів за хвилину, мінімальне значення повинно бути меншим за максимальне."
+                });
+
+            if (dto.MinOxygenLevel < 90)
+                errors.Add(new IdentityError
+                {
+                    Description = "Рівень кисню має бути у межах від 90% до 100%."
+                });
+
+            if (dto.MinBodyTemperature < 30.0 || dto.MaxBodyTemperature > 45.0 || dto.MinBodyTemperature >= dto.MaxBodyTemperature)
+                errors.Add(new IdentityError
+                {
+                    Description = "Температура тіла має бути у межах від 30°C до 45°C, мінімальне значення повинно бути меншим за максимальне."
+                });
+
+            return errors.Count == 0
+                ? IdentityResult.Success
+                : IdentityResult.Failed(errors.ToArray());
+        }
+
+
     }
 }

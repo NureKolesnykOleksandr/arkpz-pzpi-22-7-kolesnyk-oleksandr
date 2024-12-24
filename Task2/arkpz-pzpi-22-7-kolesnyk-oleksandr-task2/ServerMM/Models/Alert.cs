@@ -6,7 +6,7 @@ namespace ServerMM.Models
     public class Alert
     {
         [Key]
-        public int AlertID { get; set; }
+        public int AlertId { get; set; }
        
         public int UserID { get; set; }
 

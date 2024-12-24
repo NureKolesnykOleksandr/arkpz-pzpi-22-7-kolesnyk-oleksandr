@@ -6,12 +6,9 @@ namespace ServerMM.Models
     public class UserLogin
     {
         [Key]
-        public int LoginID { get; set; }
+        public int LoginId { get; set; }
 
-        public int UserID { get; set; }
-
-        public User User { get; set; }
-
+        public int UserId { get; set; }
         public DateTime LoginTime { get; set; } = DateTime.Now;
 
         [MaxLength(45)]

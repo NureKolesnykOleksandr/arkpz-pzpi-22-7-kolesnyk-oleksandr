@@ -1,19 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ServerMM.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace ServerMM.Models
+namespace ServerMM.Dtos
 {
-    public class SensorData
+    public record AddSensorDataDto
     {
-        [Key]
-        public int DataId { get; set; }
-
-        public int DeviceId { get; set; }
-
-        public Device Device { get; set; }
-
-        public DateTime Timestamp { get; set; }
-
         public int? HeartRate { get; set; }
         public double? BloodOxygenLevel { get; set; }
         public double? BodyTemperature { get; set; }

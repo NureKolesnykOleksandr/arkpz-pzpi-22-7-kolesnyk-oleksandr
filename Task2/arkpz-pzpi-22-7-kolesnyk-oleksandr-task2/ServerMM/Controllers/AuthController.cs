@@ -31,7 +31,9 @@ namespace ServerMM.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var result = await _userRepository.Login(dto);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            var result = await _userRepository.Login(dto, ipAddress);
 
             if (result.Succeeded)
             {

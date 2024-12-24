@@ -1,15 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿    using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ServerMM.Models
 {
     public class Recommendation
     {
         [Key]
-        public int RecommendationID { get; set; }
+        public int RecommendationId { get; set; }
 
-        public int UserID { get; set; }
+        public int UserId { get; set; }
 
+        [JsonIgnore]
         public User User { get; set; }
 
         public DateTime GeneratedAt { get; set; } = DateTime.Now;

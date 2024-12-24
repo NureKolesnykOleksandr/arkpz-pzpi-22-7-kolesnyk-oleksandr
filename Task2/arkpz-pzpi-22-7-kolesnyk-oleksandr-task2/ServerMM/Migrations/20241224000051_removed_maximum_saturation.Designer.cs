@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServerMM;
 
@@ -10,9 +11,11 @@ using ServerMM;
 namespace ServerMM.Migrations
 {
     [DbContext(typeof(SqliteDBContext))]
-    partial class SqliteDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241224000051_removed_maximum_saturation")]
+    partial class removed_maximum_saturation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");

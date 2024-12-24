@@ -11,7 +11,7 @@ using ServerMM;
 namespace ServerMM.Migrations
 {
     [DbContext(typeof(SqliteDBContext))]
-    [Migration("20241223102348_Database-created")]
+    [Migration("20241223234103_Database-created")]
     partial class Databasecreated
     {
         /// <inheritdoc />
@@ -22,7 +22,7 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.Alert", b =>
                 {
-                    b.Property<int>("AlertID")
+                    b.Property<int>("AlertId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -44,7 +44,7 @@ namespace ServerMM.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("AlertID");
+                    b.HasKey("AlertId");
 
                     b.HasIndex("UserID");
 
@@ -53,7 +53,7 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.Device", b =>
                 {
-                    b.Property<int>("DeviceID")
+                    b.Property<int>("DeviceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -75,22 +75,20 @@ namespace ServerMM.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("DeviceID");
+                    b.HasKey("DeviceId");
 
                     b.HasIndex("SerialNumber")
                         .IsUnique();
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Devices");
                 });
 
             modelBuilder.Entity("ServerMM.Models.Recommendation", b =>
                 {
-                    b.Property<int>("RecommendationID")
+                    b.Property<int>("RecommendationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -101,19 +99,19 @@ namespace ServerMM.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("RecommendationID");
+                    b.HasKey("RecommendationId");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Recommendations");
                 });
 
             modelBuilder.Entity("ServerMM.Models.SensorData", b =>
                 {
-                    b.Property<int>("DataID")
+                    b.Property<int>("DataId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -128,7 +126,7 @@ namespace ServerMM.Migrations
                     b.Property<double?>("BodyTemperature")
                         .HasColumnType("REAL");
 
-                    b.Property<int>("DeviceID")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("HeartRate")
@@ -142,21 +140,16 @@ namespace ServerMM.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("INTEGER");
+                    b.HasKey("DataId");
 
-                    b.HasKey("DataID");
-
-                    b.HasIndex("DeviceID");
-
-                    b.HasIndex("UserID");
+                    b.HasIndex("DeviceId");
 
                     b.ToTable("SensorData");
                 });
 
             modelBuilder.Entity("ServerMM.Models.User", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -167,6 +160,10 @@ namespace ServerMM.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmergencyEmail")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -189,7 +186,7 @@ namespace ServerMM.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("UserID");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -199,7 +196,7 @@ namespace ServerMM.Migrations
 
             modelBuilder.Entity("ServerMM.Models.UserLogin", b =>
                 {
-                    b.Property<int>("LoginID")
+                    b.Property<int>("LoginId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -211,31 +208,46 @@ namespace ServerMM.Migrations
                     b.Property<DateTime>("LoginTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("LoginID");
-
-                    b.HasIndex("UserID");
+                    b.HasKey("LoginId");
 
                     b.ToTable("UserLogins");
+                });
+
+            modelBuilder.Entity("ServerMM.Models.UserOptions", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("MaxBodyTemperature")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("MaxOxygenLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MaxPulse")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("MinBodyTemperature")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("MinOxygenLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MinPulse")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserOptions");
                 });
 
             modelBuilder.Entity("ServerMM.Models.Alert", b =>
                 {
                     b.HasOne("ServerMM.Models.User", "User")
-                        .WithMany("Alerts")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ServerMM.Models.Device", b =>
-                {
-                    b.HasOne("ServerMM.Models.User", "User")
-                        .WithMany("Devices")
+                        .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -246,8 +258,8 @@ namespace ServerMM.Migrations
             modelBuilder.Entity("ServerMM.Models.Recommendation", b =>
                 {
                     b.HasOne("ServerMM.Models.User", "User")
-                        .WithMany("Recommendations")
-                        .HasForeignKey("UserID")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -257,47 +269,29 @@ namespace ServerMM.Migrations
             modelBuilder.Entity("ServerMM.Models.SensorData", b =>
                 {
                     b.HasOne("ServerMM.Models.Device", "Device")
-                        .WithMany("SensorData")
-                        .HasForeignKey("DeviceID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ServerMM.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Device");
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ServerMM.Models.UserLogin", b =>
+            modelBuilder.Entity("ServerMM.Models.UserOptions", b =>
                 {
                     b.HasOne("ServerMM.Models.User", "User")
-                        .WithMany("UserLogins")
-                        .HasForeignKey("UserID")
+                        .WithOne("userOptions")
+                        .HasForeignKey("ServerMM.Models.UserOptions", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ServerMM.Models.Device", b =>
-                {
-                    b.Navigation("SensorData");
-                });
-
             modelBuilder.Entity("ServerMM.Models.User", b =>
                 {
-                    b.Navigation("Alerts");
-
-                    b.Navigation("Devices");
-
-                    b.Navigation("Recommendations");
-
-                    b.Navigation("UserLogins");
+                    b.Navigation("userOptions")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

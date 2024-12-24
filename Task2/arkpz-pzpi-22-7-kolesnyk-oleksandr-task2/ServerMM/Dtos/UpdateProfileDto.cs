@@ -5,9 +5,6 @@ namespace ServerMM.Dtos
     public record UpdateProfileDto
     {
         [Required]
-        public int UserId { get; init; }
-
-        [Required]
         public string? FirstName { get; init; }
 
         [Required]

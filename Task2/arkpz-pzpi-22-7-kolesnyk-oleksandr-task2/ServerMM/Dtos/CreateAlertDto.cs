@@ -9,5 +9,8 @@ namespace ServerMM.Dtos
 
         [Required]
         public string AlertMessage { get; init; }
+
+        [Required]
+        public int UserId { get; init; }
     }
 }

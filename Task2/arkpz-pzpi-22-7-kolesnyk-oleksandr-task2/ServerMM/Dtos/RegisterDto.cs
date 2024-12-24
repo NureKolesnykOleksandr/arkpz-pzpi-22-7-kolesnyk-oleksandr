@@ -15,6 +15,10 @@ namespace ServerMM.Dtos
         public string Email { get; init; }
 
         [Required]
+        [EmailAddress]
+        public string EmergencyEmail { get; init; }
+
+        [Required]
         [MinLength(6)]
         public string Password { get; init; }
 
