@@ -67,6 +67,8 @@ namespace ServerMM.Repositories
                 });
             }
 
+            alert.IsAcknowledged = true;
+
             await context.Alerts.AddAsync(alert);
             int changes = await context.SaveChangesAsync();
 
@@ -81,6 +83,8 @@ namespace ServerMM.Repositories
                     Description = "Помилка при відправленні повідомлення"
                 });
             }
+
+
 
         }
     }
