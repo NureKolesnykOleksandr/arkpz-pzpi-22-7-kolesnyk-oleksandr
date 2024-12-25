@@ -11,8 +11,8 @@ using ServerMM;
 namespace ServerMM.Migrations
 {
     [DbContext(typeof(SqliteDBContext))]
-    [Migration("20241223234103_Database-created")]
-    partial class Databasecreated
+    [Migration("20241225222409_Added-property-isBanned")]
+    partial class AddedpropertyisBanned
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -186,12 +186,29 @@ namespace ServerMM.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("isBanned")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            CreatedAt = new DateTime(2024, 12, 26, 0, 24, 8, 686, DateTimeKind.Local).AddTicks(1062),
+                            Email = "oleksandr.kolesnyk@nure.ua",
+                            EmergencyEmail = "oleksandr.kolesnyk@nure.ua",
+                            FirstName = "Admin",
+                            Gender = "Male",
+                            LastName = "Kolesnyk",
+                            PasswordHash = "$2a$11$xOyCrVs3nGeZmUjpbf7Zqekg7kf4q1ynKyD9UqEmvvWAOf2P4SEuO",
+                            isBanned = false
+                        });
                 });
 
             modelBuilder.Entity("ServerMM.Models.UserLogin", b =>
@@ -223,9 +240,6 @@ namespace ServerMM.Migrations
 
                     b.Property<double>("MaxBodyTemperature")
                         .HasColumnType("REAL");
-
-                    b.Property<int>("MaxOxygenLevel")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("MaxPulse")
                         .HasColumnType("INTEGER");

@@ -37,7 +37,7 @@ namespace ServerMM.Repositories
                 smtp.Send(m);
                 return true;
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine("Помилка з поштою:" + ex.Message);
                 return false;
@@ -56,7 +56,7 @@ namespace ServerMM.Repositories
 
         public async Task<IdentityResult> Register(RegisterDto registerDto)
         {
-            if(registerDto.Gender!="Male" && registerDto.Gender != "Female")
+            if (registerDto.Gender != "Male" && registerDto.Gender != "Female")
             {
                 return IdentityResult.Failed(new IdentityError
                 {
@@ -120,9 +120,14 @@ namespace ServerMM.Repositories
                 return IdentityResult.Failed(new IdentityError { Description = "Такого аккаунта не існує" });
             }
 
+            if (user.isBanned)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Користувача заблоковано" });
+            }
+
             if (CheckPassword(loginDto.Password, user.PasswordHash))
             {
-                UserLogin login = new UserLogin() { UserId = user.UserId,IPAddress = ip};
+                UserLogin login = new UserLogin() { UserId = user.UserId, IPAddress = ip };
                 await context.UserLogins.AddAsync(login);
                 await context.SaveChangesAsync();
                 return IdentityResult.Success;
@@ -135,7 +140,7 @@ namespace ServerMM.Repositories
         {
             User user = await context.Users.FirstOrDefaultAsync(u => u.Email == forgotPasswordDto.Email);
 
-            if(user.FirstName!=forgotPasswordDto.FirstName || user.DateOfBirth != forgotPasswordDto.DateOfBirth)
+            if (user.FirstName != forgotPasswordDto.FirstName || user.DateOfBirth != forgotPasswordDto.DateOfBirth)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Некоректні дані" });
             }
@@ -157,7 +162,7 @@ namespace ServerMM.Repositories
             await context.SaveChangesAsync();
 
             if (await SendEmailAsync(forgotPasswordDto.Email,
-                "Скидання пароля","Ваш новий пароль на MedMon: "+ newPassword))
+                "Скидання пароля", "Ваш новий пароль на MedMon: " + newPassword))
             {
                 return IdentityResult.Success;
             }
@@ -257,6 +262,47 @@ namespace ServerMM.Repositories
                 : IdentityResult.Failed(errors.ToArray());
         }
 
+        public async Task<IdentityResult> BanUser(int userId)
+        {
+            var user = await context.Users.FindAsync(userId);
 
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+
+            user.isBanned = true;
+            context.Update(user);
+            await context.SaveChangesAsync();
+
+            return IdentityResult.Success;
+        }
+        public async Task<IdentityResult> UnBanUser(int userId)
+        {
+            var user = await context.Users.FindAsync(userId);
+
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+
+            user.isBanned = false;
+            context.Update(user);
+            await context.SaveChangesAsync();
+
+            return IdentityResult.Success;
+        }
+
+        public async Task<bool> IfAdmin(string password)
+        {
+            if (password == null)
+            {
+                return false;
+            }
+            string hash = await context.Users.Where(u => u.FirstName == "Admin").Select(u => u.PasswordHash).FirstOrDefaultAsync();
+
+            if(CheckPassword(password, hash))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -1,7 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ServerMM.Models
 {
+    public class UserConfiguration : IEntityTypeConfiguration<User>
+    {
+        public void Configure(EntityTypeBuilder<User> builder)
+        {
+            builder.HasData(new User
+            {
+                UserId = 1,
+                FirstName = "Admin",
+                LastName = "Kolesnyk",
+                Email = "oleksandr.kolesnyk@nure.ua",
+                EmergencyEmail = "oleksandr.kolesnyk@nure.ua",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("xNHtw1Jm2gzxi5EKXWM1Pgs7vyMksVd0i8ovp13uMhAMy7exjU"),
+                Gender = "Male",
+                CreatedAt = DateTime.Now
+            });
+        }
+    }
 
     public class User
     {
@@ -21,6 +40,8 @@ namespace ServerMM.Models
         public string EmergencyEmail { get; set; }
 
         public string PasswordHash { get; set; }
+
+        public bool isBanned { get; set; } = false;
 
         public DateTime? DateOfBirth { get; set; }
 

@@ -11,8 +11,8 @@ using ServerMM;
 namespace ServerMM.Migrations
 {
     [DbContext(typeof(SqliteDBContext))]
-    [Migration("20241224000051_removed_maximum_saturation")]
-    partial class removed_maximum_saturation
+    [Migration("20241225220940_DatabaseCreated")]
+    partial class DatabaseCreated
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

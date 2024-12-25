@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServerMM;
 
@@ -10,9 +11,11 @@ using ServerMM;
 namespace ServerMM.Migrations
 {
     [DbContext(typeof(SqliteDBContext))]
-    partial class SqliteDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241225221640_Admin-added")]
+    partial class Adminadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -183,9 +186,6 @@ namespace ServerMM.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("isBanned")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("UserId");
 
                     b.HasIndex("Email")
@@ -197,14 +197,13 @@ namespace ServerMM.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2024, 12, 26, 0, 24, 8, 686, DateTimeKind.Local).AddTicks(1062),
+                            CreatedAt = new DateTime(2024, 12, 26, 0, 16, 39, 650, DateTimeKind.Local).AddTicks(1525),
                             Email = "oleksandr.kolesnyk@nure.ua",
                             EmergencyEmail = "oleksandr.kolesnyk@nure.ua",
                             FirstName = "Admin",
                             Gender = "Male",
                             LastName = "Kolesnyk",
-                            PasswordHash = "$2a$11$xOyCrVs3nGeZmUjpbf7Zqekg7kf4q1ynKyD9UqEmvvWAOf2P4SEuO",
-                            isBanned = false
+                            PasswordHash = "$2a$11$Rz7MkyZFjs.YhGXJHPjkPe57lK/R2340mQApY/6gJjzWK/rlbK/RO"
                         });
                 });
 

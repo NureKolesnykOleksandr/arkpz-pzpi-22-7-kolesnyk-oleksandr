@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ServerMM.Migrations
 {
     /// <inheritdoc />
-    public partial class Databasecreated : Migration
+    public partial class DatabaseCreated : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -140,7 +140,6 @@ namespace ServerMM.Migrations
                     MinPulse = table.Column<int>(type: "INTEGER", nullable: false),
                     MaxPulse = table.Column<int>(type: "INTEGER", nullable: false),
                     MinOxygenLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    MaxOxygenLevel = table.Column<int>(type: "INTEGER", nullable: false),
                     MinBodyTemperature = table.Column<double>(type: "REAL", nullable: false),
                     MaxBodyTemperature = table.Column<double>(type: "REAL", nullable: false)
                 },
