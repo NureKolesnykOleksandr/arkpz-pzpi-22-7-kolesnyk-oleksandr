@@ -1,1 +1,233 @@
+МIНIСТЕРСТВО ОСВIТИ І НАУКИ УКРАЇНИ
+
+ХАРКIВСЬКИЙ НАЦІОНАЛЬНИЙ
+УНIВЕРСИТЕТ РАДIОЕЛЕКТРОНIКИ
+
+
+
+Кафедра «Програмна інженерія»
+
+
+
+
+ЗВІТ
+до лабораторної роботи №3 з дисципліни 
+«Аналіз та рефакторинг коду» 
+На тему: «РОЗРОБКА БІЗНЕС-ЛОГІКИ ТА ФУНКЦІЙ АДМІНІСТРУВАННЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ»
+
+
+Виконав: 						Прийняв:
+ст. гр. ПЗПІ-22-7                       		ст. викладач кафедри ПІ
+Колесник Олександр Андрійович		Сокорчук Ігор Петрович
+
+
+
+Харкiв 2024
+
+1 МЕТА 
+Розробити бізнес-логіку та функції адміністрування серверної частини програмної системи.
+
+ 2 ЗАВДАННЯ 
+- Розробити бізнес логіку програмної системи. 
+- Створити UML діаграму діяльності для серверної частини системи. 
+- Створити UML діаграму взаємодії для серверної частини системи.
+- Розробити програмну реалізацію бізнес логіки системи.
+- Перевірити роботу створеного програмного коду серверної частини системи.
+
+3 ХІД РОБОТИ
+Для виконання цієї лабораторної роботи були використані такі технології, як ASP .Net Core, SqlLite та Entity Framework. У проекті був створен наступний каталог:
+- Repositories – для реалізації бізнес логіки.
+Метод GenerateRecommendationForUser аналізує стан здоров’я користувача на основі даних з сенсорів, налаштувань користувача та бізнес-правил. Код можна подивитися у додатку А.
+Основні параметри:
+•	Частота пульсу (HeartRate).
+•	Температура тіла (BodyTemperature).
+•	Рівень кисню в крові (BloodOxygenLevel).
+Алгоритм роботи:
+Перевірка користувача в базі даних:
+•	Система перевіряє, чи існує користувач із заданим userId.
+•	Якщо користувача немає, генерується виняток із відповідним повідомленням.
+Отримання останніх даних із сенсорів:
+•	Знаходяться останні за часом показники з сенсорів користувача.
+•	Якщо дані відсутні, генерується помилка про відсутність даних сенсорів.
+Отримання налаштувань користувача:
+•	Отримуються налаштування користувача, такі як допустимі межі для кожного показника.
+•	Якщо налаштування не задано, генерується помилка.
+Аналіз даних:
+•	Пульс: Якщо пульс нижчий або вищий за допустимі межі, додається відповідне повідомлення.
+	Якщо відхилення перевищує 20 уд./хв, ситуація вважається критичною.
+	До рекомендації додається посилання на статті для допомоги.
+•	Температура тіла: Якщо температура виходить за межі норми:
+	Визначається різниця між поточною температурою та допустимими межами.
+	Якщо різниця перевищує 2°C, ситуація вважається критичною.
+	Генерується відповідна рекомендація з посиланнями на статті.
+•	Рівень кисню в крові: Якщо рівень кисню нижчий за норму:
+	Додається рекомендація виконати дихальні вправи.
+	Вказуються посилання на статті.
+Критична ситуація:
+•	Якщо хоча б один показник перевищує критичний поріг, до тексту додається рекомендація негайно повідомити екстрений контакт або викликати швидку допомогу.
+Генерація результату:
+•	Якщо всі показники в нормі, рекомендація повідомляє про відсутність необхідності дій.
+•	Інакше генерується текст із порадами та посиланнями на статті для допомоги.
+Збереження рекомендації:
+•	Згенеровані рекомендації зберігаються у базі даних.
+•	Повертається об’єкт Recommendation із текстом та часом створення.
+Приклади бізнес-правил:
+•	Якщо частота пульсу < мінімального значення: "Пульс занадто низький на X уд./хв. Рекомендується збільшити активність або звернутися до лікаря."
+•	Якщо температура > максимальної межі: "Температура тіла занадто висока на X°C. Зверніться до лікаря."
+•	Якщо рівень кисню < мінімального значення: "Рівень кисню занадто низький на X%. Рекомендується виконати дихальні вправи."
+Потім була створена Діаграма діяльності для формування рекомендаці, яку можна побачити на рисунку 1:	
+ 
+Рисунок 1 – Діаграма діяльності для формування рекомендацій
+	Потім була розроблена діаграма взаємодії для серверної частини системи(див. рис. 2). 
+ 
+Рисунок 2 – Діаграма взаємодії для серверної частини
+	
+Посилання на запис демонстрації роботи системи в youtube:
+https://youtu.be/i_IS9ePvMKU
+
+ВИСНОВКИ
+Під час виконання лабораторної роботи було розроблено бізнес-логіку та функції адміністрування серверної частини програмної системи
+
+	 
+ДОДАТОК А 
+Recomendation Repository
+using Microsoft.EntityFrameworkCore;
+using ServerMM.Interfaces;
+using ServerMM.Models;
+using System.Linq;
+
+namespace ServerMM.Repositories
+{
+    public class RecomendationRepository : IRecomendationRepository
+    {
+        private readonly SqliteDBContext context;
+
+        // Конструктор класу для ініціалізації контексту бази даних
+        public RecomendationRepository(SqliteDBContext context)
+        {
+            this.context = context;
+        }
+
+        // Метод для отримання всіх рекомендацій для конкретного користувача
+        public async Task<IEnumerable<Recommendation>> GetAllRecommendationsForUser(int userId)
+        {
+            return await context.Recommendations
+                .Where(r => r.UserId == userId) // Фільтрація рекомендацій за userId
+                .ToListAsync(); // Асинхронне отримання списку рекомендацій
+        }
+
+        // Метод для генерації рекомендацій для користувача на основі його даних
+        public async Task<Recommendation> GenerateRecommendationForUser(int userId)
+        {
+            // Перевірка, чи існує користувач із заданим userId
+            var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                throw new ArgumentException($"Користувача з ID {userId} не знайдено.");
+            }
+
+            // Отримання останніх даних із сенсорів для користувача
+            var lastSensorData = await context.SensorData
+                .Where(s => s.Device.UserId == userId)
+                .OrderByDescending(s => s.Timestamp) // Сортування за часом у порядку спадання
+                .FirstOrDefaultAsync(); // Отримання останнього запису
+
+            if (lastSensorData == null)
+            {
+                throw new InvalidOperationException("Немає даних датчиків для цього користувача.");
+            }
+
+            // Отримання налаштувань користувача
+            var userOptions = await context.UserOptions.FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (userOptions == null)
+            {
+                throw new InvalidOperationException("Налаштування користувача не задано.");
+            }
+
+            // Ініціалізація змінних для формування рекомендації
+            bool isfine = true; // Чи в нормі всі показники
+            string recommendationText = ""; // Текст рекомендації
+            List<string> articles = new(); // Список статей для допомоги
+            bool isCritical = false; // Чи є ситуація критичною
+
+            // Аналіз частоти пульсу
+            if (lastSensorData.HeartRate < userOptions.MinPulse)
+            {
+                var diff = userOptions.MinPulse - lastSensorData.HeartRate;
+                recommendationText = $"Пульс занадто низький на {diff} уд./хв. Рекомендується збільшити активність або звернутися до лікаря.";
+                articles.Add("https://medikom.ua/chto-takoe-bradikardiya/");
+                if (diff > 20) isCritical = true; // Якщо відхилення більше 20, ситуація критична
+                isfine = false;
+            }
+            else if (lastSensorData.HeartRate > userOptions.MaxPulse)
+            {
+                var diff = lastSensorData.HeartRate - userOptions.MaxPulse;
+                recommendationText = $"Пульс занадто високий на {diff} уд./хв. Виконайте вправи для заспокоєння.";
+                articles.Add("https://dobrobut.com/ua/med/c-tahikardia-kak-ponizit-puls-v-domasnih-usloviah");
+                if (diff > 20) isCritical = true; // Якщо відхилення більше 20, ситуація критична
+                isfine = false;
+            }
+
+            // Аналіз температури тіла
+            if (lastSensorData.BodyTemperature < userOptions.MinBodyTemperature)
+            {
+                var diff = userOptions.MinBodyTemperature - lastSensorData.BodyTemperature;
+                recommendationText += $" Температура тіла занадто низька на {diff:0.0}°C. Зігрійтеся та зверніться до лікаря.";
+                articles.Add("https://rplus.com.ua/blog/nizkaya-temperatura-tela-chto-delat/");
+                if (diff > 2.0) isCritical = true; // Якщо відхилення більше 2°C, ситуація критична
+                isfine = false;
+            }
+            else if (lastSensorData.BodyTemperature > userOptions.MaxBodyTemperature)
+            {
+                var diff = lastSensorData.BodyTemperature - userOptions.MaxBodyTemperature;
+                recommendationText += $" Температура тіла занадто висока на {diff:0.0}°C. Зверніться до лікаря.";
+                articles.Add("https://omegamc.ua/ua/spravochnik/klinicheskij/vysokaya-temperatura-chto-delat.html");
+                if (diff > 2.0) isCritical = true; // Якщо відхилення більше 2°C, ситуація критична
+                isfine = false;
+            }
+
+            // Аналіз рівня кисню в крові
+            if (lastSensorData.BloodOxygenLevel < userOptions.MinOxygenLevel)
+            {
+                var diff = userOptions.MinOxygenLevel - lastSensorData.BloodOxygenLevel;
+                recommendationText += $" Рівень кисню занадто низький на {diff:0.0}%. Рекомендується виконати дихальні вправи.";
+                articles.Add("https://medikom.ua/gipoksiya-vidy-lechenie-kislorodnoj-nedostatochnosti/");
+                isfine = false;
+            }
+
+            // Додавання тексту для критичної ситуації
+            if (isCritical)
+            {
+                recommendationText += $" У вас критична ситуація, рекомендуємо негайно повідомити свій Emergency контакт або викликати швидку.";
+            }
+
+            // Додавання статей, якщо є порушення показників
+            if (isfine == false)
+            {
+                recommendationText += "\nСтатті для допомоги: " + string.Join(", ", articles);
+            }
+            else
+            {
+                recommendationText = "Усі показники в нормі. Дій не потрібно.";
+            }
+
+            // Створення об'єкта рекомендації
+            var recommendation = new Recommendation
+            {
+                UserId = userId,
+                RecommendationText = recommendationText,
+                GeneratedAt = DateTime.UtcNow
+            };
+
+            // Збереження рекомендації в базі даних
+            context.Recommendations.Add(recommendation);
+            await context.SaveChangesAsync();
+
+            // Повернення створеної рекомендації
+            return recommendation;
+        }
+    }
+}
 
