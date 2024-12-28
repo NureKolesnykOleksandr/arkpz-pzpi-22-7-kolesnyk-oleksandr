@@ -9,7 +9,7 @@ namespace ServerMM.Interfaces
     {
         Task<IdentityResult> AddDevice(CreateDeviceDto addDeviceDto);
 
-        Task<IdentityResult> AddSensorData(int deviceId, AddSensorDataDto addSensorDataDto);
+        Task<IdentityResult> AddSensorData(string SerialNumber, AddSensorDataDto addSensorDataDto);
 
         Task<List<Device>> GetDevices(int userId);
 

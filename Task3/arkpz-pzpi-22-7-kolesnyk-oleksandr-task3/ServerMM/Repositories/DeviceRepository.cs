@@ -31,11 +31,18 @@ namespace ServerMM.Repositories
             return IdentityResult.Success;
         }
 
-        public async Task<IdentityResult> AddSensorData(int deviceId, AddSensorDataDto addSensorDataDto)
+        public async Task<IdentityResult> AddSensorData(string SerialNumber, AddSensorDataDto addSensorDataDto)
         {
+            Device device = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == SerialNumber);
+
+            if(device == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Не існує девайсу з таким серійним номером" });
+            }
+
             var sensorData = new SensorData
             {
-                DeviceId = deviceId,
+                DeviceId = device.DeviceId,
                 Timestamp = DateTime.Now,
                 HeartRate = addSensorDataDto.HeartRate,
                 BloodOxygenLevel = addSensorDataDto.BloodOxygenLevel,

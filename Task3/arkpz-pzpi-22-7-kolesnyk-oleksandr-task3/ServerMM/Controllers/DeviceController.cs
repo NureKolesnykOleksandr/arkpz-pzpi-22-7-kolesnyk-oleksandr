@@ -31,10 +31,10 @@ namespace ServerMM.Controllers
             }
         }
 
-        [HttpPost("SensorData/{deviceId}")]
-        public async Task<IActionResult> AddSensorReading(int deviceId, [FromBody] AddSensorDataDto addSensorDataDto)
+        [HttpPost("SensorData/{SerialNumber}")]
+        public async Task<IActionResult> AddSensorReading(string SerialNumber, [FromBody] AddSensorDataDto addSensorDataDto)
         {
-            var result = await deviceRepository.AddSensorData(deviceId, addSensorDataDto);
+            var result = await deviceRepository.AddSensorData(SerialNumber, addSensorDataDto);
             if (result == IdentityResult.Success)
             {
                 return Ok("Датчик успішно оновлено");
